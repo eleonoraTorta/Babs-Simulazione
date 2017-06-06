@@ -30,8 +30,10 @@ public class Statistics implements Comparable<Statistics>{
 	public void setDrop(int drop) {
 		this.drop = drop;
 	}
-	@Override
+	
+	//visto che devo solo controllare la latitudine delle stazioni e ordinarle in base ad essa
+	@Override 
 	public int compareTo(Statistics o) {
-		return Double.compare(this.stazione.getLat(), o.getStazione().getLat());
-	}
+		return Double.compare(this.stazione.getLat(), o.getStazione().getLat());    //METODO STATICO DELLA CLASSE DOUBLE
+	}															// la differenza come comparatore funziona solo tra interi
 }

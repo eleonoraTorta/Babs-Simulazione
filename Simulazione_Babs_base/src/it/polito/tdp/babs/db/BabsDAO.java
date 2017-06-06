@@ -65,17 +65,22 @@ public class BabsDAO {
 	public int getPickNumber(Station stazione, LocalDate ld) {
 		int result;
 		Connection conn = DBConnect.getInstance().getConnection();
-		String sql = "Select count(*) as counter from trip where DATE(StartDate) = ? and StartTerminal = ?";
+		String sql = "Select count(*) as counter from trip where DATE(StartDate) = ? and StartTerminal = ?";  
+		// count(*) restituisce quante volte ce l'occorrenza  (e` un contatore)
+		// per la data ho usato DATE(StartDate)
 		
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
-			st.setDate(1, Date.valueOf(ld));
+			st.setDate(1, Date.valueOf(ld));      // Date.valueOf(ld) = questo metodo converte una LocalDate in un oggetto Date
 			st.setInt(2,  stazione.getStationID());
 			ResultSet rs = st.executeQuery();
 			
+			// prima di usare rs.getInt(..) devo dirgli di prendere il risultato restituito dalla query
+			// e poiche e` una sola riga posso usare rs.first() anziche rs.next()
 //			rs.next();
-			rs.first();
-			result = rs.getInt("counter");
+   		    rs.first();  					// restituisce la prima riga del risultato
+			result = rs.getInt("counter");  // restituisce il campo counter che era l'unico parametro che ho richiesto
+											// se in sql non ci sono risultati restituisce 0 --> il testo mi chiede di stampare errore
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -99,6 +104,58 @@ public class BabsDAO {
 			rs.first();
 			result = rs.getInt("counter");
 			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error in database query", e);
+		}
+
+		return result;
+	}
+
+	public List<Trip> getTripsForDayPick(LocalDate ld) {
+		List<Trip> result = new LinkedList<Trip>();
+		Connection conn = DBConnect.getInstance().getConnection();
+		String sql = "SELECT * FROM trip WHERE DATE(StartDate) = ?";
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setDate(1, Date.valueOf(ld));
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				Trip trip = new Trip(rs.getInt("tripid"), rs.getInt("duration"), rs.getTimestamp("startdate").toLocalDateTime(), rs.getInt("startterminal"),
+						rs.getTimestamp("enddate").toLocalDateTime(), rs.getInt("endterminal"));
+				result.add(trip);
+			}
+			st.close();
+			conn.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error in database query", e);
+		}
+
+		return result;
+	}
+	
+	public List<Trip> getTripsForDayDrop(LocalDate ld) {
+		List<Trip> result = new LinkedList<Trip>();
+		Connection conn = DBConnect.getInstance().getConnection();
+		String sql = "SELECT * FROM trip WHERE DATE(EndDate) = ?";
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setDate(1, Date.valueOf(ld));
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				Trip trip = new Trip(rs.getInt("tripid"), rs.getInt("duration"), rs.getTimestamp("startdate").toLocalDateTime(), rs.getInt("startterminal"),
+						rs.getTimestamp("enddate").toLocalDateTime(), rs.getInt("endterminal"));
+				result.add(trip);
+			}
+			st.close();
+			conn.close();
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new RuntimeException("Error in database query", e);

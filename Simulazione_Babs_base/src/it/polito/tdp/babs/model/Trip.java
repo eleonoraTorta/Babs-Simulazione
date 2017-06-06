@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class Trip {
 
 	private int tripID;
-	private int duration;
+	private int duration;  // in secondi
 	private LocalDateTime startDate;
 	private int startStationID;
 
@@ -69,4 +69,42 @@ public class Trip {
 	public void setEndStationID(int endStationID) {
 		this.endStationID = endStationID;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + tripID;
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Trip other = (Trip) obj;
+		if (tripID != other.tripID)
+			return false;
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return this.getStartStationID() + " " + this.getEndStationID() + " " + this.getDuration();
+	}
+	
+	
 }
